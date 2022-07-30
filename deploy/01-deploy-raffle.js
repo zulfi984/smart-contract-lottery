@@ -26,6 +26,7 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
     const gasLane = networkConfig[chainId]["gasLane"]
     const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
     const interval = networkConfig[chainId]["keepersUpdateInterval"]
+    log(interval.toString())
     const arguments = [
         vrfCoordinatorV2Address,
         entranceFee,
