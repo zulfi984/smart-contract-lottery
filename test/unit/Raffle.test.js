@@ -162,6 +162,11 @@ const { developmentChains, networkConfig } = require("../../helper-hardhat-confi
                               const raffleState = await raffle.getRaffleState()
                               const winnerBalance = await accounts[2].getBalance()
                               const endingTimeStamp = await raffle.getLastTimeStamp()
+                              // console.log(recentWinner);
+                              // console.log(accounts[0].address);
+                              // console.log(accounts[1].address);
+                              // console.log(accounts[2].address);
+                              // console.log(accounts[3].address);
                               await expect(raffle.getPlayer(0)).to.be.reverted
                               // Comparisons to check if our ending values are correct:
                               assert.equal(recentWinner.toString(), accounts[2].address)
