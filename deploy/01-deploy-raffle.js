@@ -1,13 +1,19 @@
-const { network, ethers } = require("hardhat")
-const { developmentChains, networkConfig } = require("../helper-hardhat-config")
+const { getNamedAccounts, deployments, network, run } = require("hardhat")
+const {
+    networkConfig,
+    developmentChains,
+    VERIFICATION_BLOCK_CONFIRMATIONS,
+} = require("../helper-hardhat-config")
 const { verify } = require("../utils/verify")
+
 const FUND_AMOUNT = "1000000000000000000000"
-module.exports = async function ({ getNamedAccounts, deployments }) {
+
+module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deploy, log } = deployments
     const { deployer } = await getNamedAccounts()
     const chainId = network.config.chainId
     let vrfCoordinatorV2Address, subscriptionId
-    log(network.name)
+
     if (chainId == 31337) {
         // create VRFV2 Subscription
         const vrfCoordinatorV2Mock = await ethers.getContract("VRFCoordinatorV2Mock")
@@ -22,11 +28,11 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         vrfCoordinatorV2Address = networkConfig[chainId]["vrfCoordinatorV2"]
         subscriptionId = networkConfig[chainId]["subscriptionId"]
     }
-    const entranceFee = networkConfig[chainId]["raffleEntranceFee"]
-    const gasLane = networkConfig[chainId]["gasLane"]
-    const callbackGasLimit = networkConfig[chainId]["callbackGasLimit"]
-    const interval = networkConfig[chainId]["keepersUpdateInterval"]
-    log(interval.toString())
+    const waitBlockConfirmations = developmentChains.includes(network.name)
+        ? 1
+        : VERIFICATION_BLOCK_CONFIRMATIONS
+
+    log("----------------------------------------------------")
     const arguments = [
         vrfCoordinatorV2Address,
         subscriptionId,
@@ -39,14 +45,19 @@ module.exports = async function ({ getNamedAccounts, deployments }) {
         from: deployer,
         args: arguments,
         log: true,
-        waitConfirmations: network.config.blockConfirmations || 1,
+        waitConfirmations: waitBlockConfirmations,
     })
 
     // Verify the deployment
-    if (chainId != 31337 && process.env.ETHERSCAN_API_KEY) {
+    if (!developmentChains.includes(network.name) && process.env.ETHERSCAN_API_KEY) {
         log("Verifying...")
-        await verify(raffle.address, args)
+        await verify(raffle.address, arguments)
     }
+
+    log("Enter lottery with command:")
+    const networkName = network.name == "hardhat" ? "localhost" : network.name
+    log(`yarn hardhat run scripts/enterRaffle.js --network ${networkName}`)
+    log("----------------------------------------------------")
 }
 
 module.exports.tags = ["all", "raffle"]
