@@ -36,6 +36,14 @@ module.exports = {
             // forking: {
             //   url: MAINNET_RPC_URL
             // }
+
+            // accounts: [
+            //     {
+            //         privateKey: "c6a2746933014a5139013a60598f42f271b8448a41071a476147fbaa075103cd",
+            //         balance: "10000000000000000000000",
+            //     },
+            // ],
+
             chainId: 31337,
         },
         localhost: {
